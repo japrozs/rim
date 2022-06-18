@@ -13,12 +13,13 @@ char *lower(char *str, size_t len)
 
 void gen_help_msg(app_t* app){
 	printf(
-		"Usage: %s [options] [command]\n\n"
+		"%s %s\n"
 		"%s\n\n"
+		"Usage: %s [options] [command]\n\n"
 		"Options:\n"
 		"\t-V, --version              output the version number\n"
 		"\t-h, --help                 display help message\n",
-		app->name, app->desc
+		app->name, app->ver, app->desc, app->name
 	);
 
 	for(int i = 0;i < app->opts_len;i++){
