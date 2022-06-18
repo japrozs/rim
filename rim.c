@@ -11,11 +11,30 @@ char *lower(char *str, size_t len)
 	return str_l;
 }
 
+void red_bold() {
+  printf("\033[1;31m");
+}
+
+void reset () {
+  printf("\033[0m");
+}
+
+void err_and_exit( const char* format, ... ) {
+    va_list args;
+	red_bold();
+    printf("error: ");
+	reset();
+    va_start( args, format );
+    vprintf(format, args );
+    va_end( args );
+	exit(0);
+}
+
 void gen_help_msg(app_t* app){
 	printf(
 		"%s %s\n"
 		"%s\n\n"
-		"Usage: %s [options] [command]\n\n"
+		"Usage: %s [OPTIONS] [COMMAND]\n\n"
 		"Options:\n"
 		"\t-V, --version              output the version number\n"
 		"\t-h, --help                 display help message\n",
@@ -124,9 +143,47 @@ void app_run(app_t *app, const int argc, char **argv)
 		exit(EXIT_SUCCESS);
 	}
 
+
 	for (int i = 1; i < argc; i++)
 	{
 		char *arg = argv[i];
+		bool match = false;
+		bool value_passed = false;
+
+		for(int k = 0;k < (int)strlen(arg);k++){
+			if(arg[k] == '='){
+				value_passed = true;
+			}
+		}
+
+
+		if(value_passed){
+			char arg_cpy[MAX_BUF];
+			strcpy(arg_cpy, arg);
+			char* name = strtok(arg_cpy, "=");	
+			for(int k = 0;k < app->opts_len;k++){
+				if(strcmp(app->options[k].name, name) == 0 || strcmp(app->options[k].alias, name) == 0){
+					match = true;
+				}
+			}
+		}else{
+			for(int k = 0;k < app->opts_len;k++){
+				if(strcmp(app->options[k].name, arg) == 0 || strcmp(app->options[k].alias, arg) == 0){
+					match = true;
+				}
+			}
+		}
+
+		if(!match){
+			err_and_exit(
+				"Found argument '%s' which wasn't expected, or isn't valid in this context\n\n"
+				"USAGE:\n"
+				"    %s [OPTIONS] [COMMAND]\n\n"
+				"For more information try %s --help\n\n",
+				arg, app->name, app->name
+			);
+		}
+
 		if (arg[0] == '-')
 		{
 			option_t opt;
@@ -152,9 +209,9 @@ void app_run(app_t *app, const int argc, char **argv)
 							break;
 						}
 					}
+
 					if(opt.type == FLAG){
-						printf("error :: supplied value for a flag!\n");
-						exit(0);
+						err_and_exit("supplied value for a flag!\n");
 					}else{
 						app->options[idx].passed = true;
 						app->options[idx].value = val;
@@ -179,7 +236,7 @@ void app_run(app_t *app, const int argc, char **argv)
 							app->options[idx].value = argv[i + 1];
 							i++;
 						}else{
-							printf("error :: no value supplied for option \"%s\"\n", opt.name);
+							err_and_exit("no value supplied for option \"%s\"\n", opt.name);
 						}
 					}
 				}
@@ -206,8 +263,7 @@ void app_run(app_t *app, const int argc, char **argv)
 						}
 					}
 					if(opt.type == FLAG){
-						printf("error :: supplied value for a flag!\n");
-						exit(0);
+						err_and_exit("supplied value for a flag!\n");
 					}else{
 						app->options[idx].passed = true;
 						app->options[idx].value = val;
@@ -232,7 +288,7 @@ void app_run(app_t *app, const int argc, char **argv)
 							app->options[idx].value = argv[i + 1];
 							i++;
 						}else{
-							printf("error :: no value supplied for option \"%s\"\n", opt.name);
+							err_and_exit("no value supplied for option \"%s\"\n", opt.name);
 						}
 					}
 				}
@@ -270,8 +326,10 @@ char *rim_value(app_t *app, const char *name)
 		if (strcmp(app->options[k].name, name) == 0 || strcmp(app->options[k].alias, name) == 0)
 		{
 			if(app->options[k].type == FLAG){
-				printf("error :: tried to retreive value of flag \"%s\"\n", app->options[k].name);
-				exit(0);
+				err_and_exit("tried to retreive value of flag \"%s\"\n", app->options[k].name);
+			}
+			if(app->options[k].type == COMMAND){
+				err_and_exit("tried to retreive value of command \"%s\"\n", app->options[k].name);
 			}
 			return app->options[k].value;
 		}
