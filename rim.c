@@ -40,7 +40,7 @@ void gen_help_msg(app_t* app){
 }
 
 void gen_version_msg(app_t* app){
-	printf("%s\n", app->ver);
+	printf("%s %s\n", app->name ,app->ver);
 }
 
 app_t *new_app(app_config_t cfg)
