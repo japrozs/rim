@@ -294,14 +294,31 @@ void app_run(app_t *app, const int argc, char **argv)
 				}
 			}
 		}else {
-			for (int j = 0; j < app->opts_len; j++)
-			{
-				if (strcmp(app->options[j].name, arg) == 0)
-				{
-					app->options[j].passed = true;
-					break;
+			bool passed_value = false;
+			for(int k = 0;k < (int)strlen(arg);k++){
+				if(arg[k] == '='){
+					passed_value = true;
 				}
-			}	
+			}
+			
+
+			if(passed_value){
+				char cpy[MAX_BUF];
+				strcpy(cpy, arg);
+				char* n = strtok(arg, "=");
+				err_and_exit("supplied value for a command \"%s\"\n", n);
+			}
+			else{
+				for (int j = 0; j < app->opts_len; j++)
+				{
+					if (strcmp(app->options[j].name, arg) == 0)
+					{
+						app->options[j].passed = true;
+						break;
+					}
+				}
+			}
+
 		}
 	}
 }
