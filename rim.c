@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2022, Japroz Saini <sainijaproz@gmail.com>
+ *
+ * SPDX-License-Identifier: MIT 
+ */
+
 #include "rim.h"
 
 char *lower(char *str, size_t len)

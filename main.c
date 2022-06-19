@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2022, Japroz Saini <sainijaproz@gmail.com>
+ *
+ * SPDX-License-Identifier: MIT 
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include "rim.h"

@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2022, Japroz Saini <sainijaproz@gmail.com>
+ *
+ * SPDX-License-Identifier: MIT 
+ */
+
 #ifndef RIM_H
 #define RIM_H
 
